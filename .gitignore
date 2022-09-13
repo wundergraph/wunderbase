@@ -1,0 +1,9 @@
+.idea
+./linux
+migration.lock
+./data
+*.sqlite
+fly.toml
+migration-engine
+query-engine
+node_modules

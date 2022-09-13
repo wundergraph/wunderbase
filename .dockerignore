@@ -1,0 +1,7 @@
+*.sqlite
+Dockerfile
+*.lock
+migration-engine
+query-engine
+*.md
+./data
