@@ -37,6 +37,12 @@ then
 
 `docker run -p 4466:4466 -e ENABLE_SLEEP_MODE=false wundergraph/wunderbase`
 
+## Running on fly Machines
+
+Check out the fly.io [Machines documentation](https://fly.io/docs/reference/machines/) on how to deploy WunderBase to fly.io.
+You can build the image yourself using the Dockerfile in this repo,
+or just use a pre-built image from Docker Hub: `wundergraph/wunderbase`.
+
 ## Testing
 
 Requires Docker
