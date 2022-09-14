@@ -1,7 +1,7 @@
 # WunderBase
 
-<img src="/img/logo.png" align="right"
-alt="Size Limit logo by Anton Lovchikov" width="228" height="249">
+<img src="/img/img.png" align="right"
+alt="Size Limit logo by Anton Lovchikov" width="232" height="237">
 
 WunderBase is a Serverless SQLite database exposed through GraphQL. 
 It can sleep for days and wakes up in less than a second.
