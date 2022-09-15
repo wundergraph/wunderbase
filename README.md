@@ -11,7 +11,7 @@ During sleep, you only pay for storage. It is capable to serve a medium traffic 
 * **Cheap** Fly.io free tier allows your to run it almost for free.
 
 <br>
-<p align="center">Love the idea? :heartbeat: Read the announcement <a href="https://wundergraph.com/blog/wunderbase_serverless_graphql_database_on_top_of_sqlite_firecracker_and_prisma#thank-you-prisma">blog post</a> to get more insights!</p>
+<p align="center">Love the idea? :heartbeat: Read the announcement <a href="https://wundergraph.com/blog/wunderbase_serverless_graphql_database_on_top_of_sqlite_firecracker_and_prisma">blog post</a> to get more insights!</p>
 
 ## Getting Started
 
