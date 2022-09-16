@@ -11,15 +11,15 @@ import (
 	"syscall"
 )
 
-func Run(ctx context.Context, wg *sync.WaitGroup, queryEnginePath, queryEnginePort, prismaSchemaFilePath string, enablePlayground bool) {
+func Run(ctx context.Context, wg *sync.WaitGroup, queryEnginePath, queryEnginePort, prismaSchemaFilePath string, production bool) {
 	// when start prisma query engine ,
 	// we're not able to listen on the same port,
 	// if last engine instance still alive.
 	// so we must kill the existing engine process before we start new onw.
-	killExistingyEngineProcess(queryEnginePort)
 
 	args := []string{"--datamodel-path", prismaSchemaFilePath}
-	if enablePlayground {
+	if !production {
+		killExistingPrismaQueryEngineProcess(queryEnginePort)
 		args = append(args, "--enable-playground", "--port", queryEnginePort)
 	}
 	cmd := exec.CommandContext(ctx, queryEnginePath, args...)
@@ -39,7 +39,7 @@ func Run(ctx context.Context, wg *sync.WaitGroup, queryEnginePath, queryEnginePo
 }
 
 // reference:https://github.com/wundergraph/wundergraph
-func killExistingyEngineProcess(queryEnginePort string) {
+func killExistingPrismaQueryEngineProcess(queryEnginePort string) {
 	if runtime.GOOS == "windows" {
 		command := fmt.Sprintf("(Get-NetTCPConnection -LocalPort %s).OwningProcess -Force", queryEnginePort)
 		execCmd(exec.Command("Stop-Process", "-Id", command))
