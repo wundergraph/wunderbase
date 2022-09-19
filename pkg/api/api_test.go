@@ -17,7 +17,7 @@ func TestApi(t *testing.T) {
 
 	_, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	handler := NewHandler(false, true, fakeDB.URL, fakeDB.URL+"/sdl", 0, 10000, 2000, cancel)
+	handler := NewHandler(false, false, fakeDB.URL, fakeDB.URL+"/sdl", 0, 10000, 2000, cancel)
 
 	fakeAPI := httptest.NewServer(handler)
 
