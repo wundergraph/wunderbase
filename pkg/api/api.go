@@ -10,12 +10,13 @@ import (
 	"sync"
 	"time"
 
+	"wunderbase/pkg/graphiql"
+
 	"github.com/buger/jsonparser"
 	"github.com/wundergraph/graphql-go-tools/pkg/astparser"
 	"github.com/wundergraph/graphql-go-tools/pkg/asttransform"
 	"github.com/wundergraph/graphql-go-tools/pkg/introspection"
 	"go.uber.org/ratelimit"
-	"wunderbase/pkg/graphiql"
 )
 
 type Handler struct {
@@ -32,10 +33,10 @@ type Handler struct {
 	cancel            func()
 }
 
-func NewHandler(enableSleepMode bool, enablePlayground bool, queryEngineURL string, queryEngineSdlURL string, sleepAfterSeconds, readLimitSeconds, writeLimitSeconds int, cancel func()) *Handler {
+func NewHandler(enableSleepMode bool, production bool, queryEngineURL string, queryEngineSdlURL string, sleepAfterSeconds, readLimitSeconds, writeLimitSeconds int, cancel func()) *Handler {
 	return &Handler{
 		enableSleepMode:   enableSleepMode,
-		enablePlayground:  enablePlayground,
+		enablePlayground:  !production,
 		queryEngineURL:    queryEngineURL,
 		queryEngineSdlURL: queryEngineSdlURL,
 		sleepCh:           make(chan struct{}),

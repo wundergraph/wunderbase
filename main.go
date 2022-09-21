@@ -9,25 +9,28 @@ import (
 	"os"
 	"sync"
 
-	"github.com/caarlos0/env/v6"
 	"wunderbase/pkg/api"
 	"wunderbase/pkg/migrate"
 	"wunderbase/pkg/queryengine"
+
+	"github.com/caarlos0/env/v6"
 )
 
 type config struct {
+	Production            bool   `env:"PRODUCTION" envDefault:"false"`
 	PrismaSchemaFilePath  string `env:"PRISMA_SCHEMA_FILE" envDefault:"./schema.prisma"`
 	MigrationLockFilePath string `env:"MIGRATION_LOCK_FILE" envDefault:"migration.lock"`
 	EnableSleepMode       bool   `env:"ENABLE_SLEEP_MODE" envDefault:"true"`
 	SleepAfterSeconds     int    `env:"SLEEP_AFTER_SECONDS" envDefault:"10"`
-	EnablePlayground      bool   `env:"ENABLE_PLAYGROUND" envDefault:"true"`
-	MigrationEnginePath   string `env:"MIGRATION_ENGINE_PATH" envDefault:"./migration-engine"`
-	QueryEnginePath       string `env:"QUERY_ENGINE_PATH" envDefault:"./query-engine"`
-	QueryEnginePort       string `env:"QUERY_ENGINE_PORT" envDefault:"4467"`
-	ListenAddr            string `env:"LISTEN_ADDR" envDefault:"0.0.0.0:4466"`
-	GraphiQLApiURL        string `env:"GRAPHIQL_API_URL" envDefault:"http://localhost:4466"`
-	ReadLimitSeconds      int    `env:"READ_LIMIT_SECONDS" envDefault:"10000"`
-	WriteLimitSeconds     int    `env:"WRITE_LIMIT_SECONDS" envDefault:"2000"`
+	// I think that we should discard `EnablePlayground`, when we add `Production` flag.
+	// EnablePlayground      bool   `env:"ENABLE_PLAYGROUND" envDefault:"true"`
+	MigrationEnginePath string `env:"MIGRATION_ENGINE_PATH" envDefault:"./migration-engine"`
+	QueryEnginePath     string `env:"QUERY_ENGINE_PATH" envDefault:"./query-engine"`
+	QueryEnginePort     string `env:"QUERY_ENGINE_PORT" envDefault:"4467"`
+	ListenAddr          string `env:"LISTEN_ADDR" envDefault:"0.0.0.0:4466"`
+	GraphiQLApiURL      string `env:"GRAPHIQL_API_URL" envDefault:"http://localhost:4466"`
+	ReadLimitSeconds    int    `env:"READ_LIMIT_SECONDS" envDefault:"10000"`
+	WriteLimitSeconds   int    `env:"WRITE_LIMIT_SECONDS" envDefault:"2000"`
 }
 
 func main() {
@@ -44,10 +47,10 @@ func main() {
 		log.Fatalln("load prisma schema", err)
 	}
 	migrate.Database(config.MigrationEnginePath, config.MigrationLockFilePath, string(schema), config.PrismaSchemaFilePath)
-	go queryengine.Run(ctx, wg, config.QueryEnginePath, config.QueryEnginePort, config.PrismaSchemaFilePath, config.EnablePlayground)
+	go queryengine.Run(ctx, wg, config.QueryEnginePath, config.QueryEnginePort, config.PrismaSchemaFilePath, config.Production)
 	log.Printf("Server Listening on: http://%s", config.ListenAddr)
 	handler := api.NewHandler(config.EnableSleepMode,
-		config.EnablePlayground,
+		config.Production,
 		fmt.Sprintf("http://localhost:%s/", config.QueryEnginePort),
 		fmt.Sprintf("http://localhost:%s/sdl", config.QueryEnginePort),
 		config.SleepAfterSeconds,
