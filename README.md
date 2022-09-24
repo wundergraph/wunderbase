@@ -1,16 +1,24 @@
-<img src="/img/img.png" align="left"
+<img src="img/img.png" align="left"
 alt="Size Limit logo by Anton Lovchikov" width="232" height="237">
 
-is a Serverless SQLite database exposed through GraphQL. 
+is a Serverless SQLite database exposed through GraphQL.
 It can sleep for days and wakes up in less than a second.
 During sleep, you only pay for storage. It is capable to serve a medium traffic website.
 
-* **Firecracker (Fly.io Machines)** Runs on top of the same technology as AWS Fargate.
-* **Scale to zero**. Cold starts in less than 600ms.
-* **Fast**. 10k reads / 2k writes requests per second.
-* **Cheap** Fly.io free tier allows your to run it almost for free.
+- **Firecracker (Fly.io Machines)** Runs on top of the same technology as AWS Fargate.
+- **Scale to zero**. Cold starts in less than 600ms.
+- **Fast**. 10k reads / 2k writes requests per second.
+- **Cheap** Fly.io free tier allows your to run it almost for free.
 
 <br>
+<div align="center">
+<a href="https://hub.docker.com/r/wundergraph/wunderbase">
+
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+
+</a>
+</div>
+
 <p align="center">Love the idea? :heartbeat: Read the announcement <a href="https://wundergraph.com/blog/wunderbase_serverless_graphql_database_on_top_of_sqlite_firecracker_and_prisma">blog post</a> to get more insights!</p>
 
 ## Getting Started
@@ -18,26 +26,28 @@ During sleep, you only pay for storage. It is capable to serve a medium traffic 
 ### 1. Install dependencies
 
 - Mac
-    ```
-    sh install-prisma-darwin.sh
-    ```
+
+  ```
+  sh install-prisma-darwin.sh
+  ```
 
 - Linux
-    ```
-    sh install-prisma-linux.sh
-    ```
+  ```
+  sh install-prisma-linux.sh
+  ```
 
 ### 2. Start the server
 
 - Run the application locally
-    ```sh
-    ENABLE_SLEEP_MODE=false go run main.go
-    ```
+
+  ```sh
+  ENABLE_SLEEP_MODE=false go run main.go
+  ```
 
 - Running with Docker
-    ```sh
-    docker run -p 4466:4466 -e ENABLE_SLEEP_MODE=false wundergraph/wunderbase
-    ```
+  ```sh
+  docker run -p 4466:4466 -e ENABLE_SLEEP_MODE=false wundergraph/wunderbase
+  ```
 
 ### 3. Visit the playground
 
@@ -58,14 +68,14 @@ or just use a pre-built image from [Docker Hub](https://hub.docker.com/r/wunderg
 ## Firecracker & Fly Machines
 
 - **Sleep Mode**
-    - By default, sleep mode is enabled. This means, if there is no traffic, WunderBase will sleep.
+  - By default, sleep mode is enabled. This means, if there is no traffic, WunderBase will sleep.
     Sleep mode lets WunderBase exit with exit code 0.
     This indicated to fly that the application wants to sleep.
 - **Cold Starts**
-    - I've measured an avg cold start time of 400-600ms.
+  - I've measured an avg cold start time of 400-600ms.
 - **Backups**
-    - We're looking at integrating Litestream or a similar service for backups.
-      If you'd like to contribute, please reach out!
+  - We're looking at integrating Litestream or a similar service for backups.
+    If you'd like to contribute, please reach out!
 
 ### Internals
 
@@ -80,4 +90,4 @@ The intended use case is to run it on a private network and expose it to your fr
 like [WunderGraph](https://github.com/wundergraph/wundergraph)!
 
 > **Note**: Get [Early Access](https://wundergraph.com/#early-access) to WunderGraph Cloud - " The Vercel for Backend " 🪐
-The Serverless API Developer Platform 🪄
+> The Serverless API Developer Platform 🪄
