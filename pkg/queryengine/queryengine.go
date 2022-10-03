@@ -1,12 +1,14 @@
 package queryengine
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 	"sync"
 	"syscall"
 )
@@ -40,28 +42,35 @@ func Run(ctx context.Context, wg *sync.WaitGroup, queryEnginePath, queryEnginePo
 
 // reference:https://github.com/wundergraph/wundergraph
 func killExistingPrismaQueryEngineProcess(queryEnginePort string) {
+	var err error
 	if runtime.GOOS == "windows" {
 		command := fmt.Sprintf("(Get-NetTCPConnection -LocalPort %s).OwningProcess -Force", queryEnginePort)
-		execCmd(exec.Command("Stop-Process", "-Id", command))
+		_, err = execCmd(exec.Command("Stop-Process", "-Id", command))
 	} else {
-		command := fmt.Sprintf("lsof -i tcp:%s | grep LISTEN | awk '{print $2}' | xargs kill -9", queryEnginePort)
-		execCmd(exec.Command("bash", "-c", command))
+		// XXX: This a bit fragile. Consider using system calls or parsing /proc/net/tcp
+		command := fmt.Sprintf("netstat -plnt | grep :%s | awk '{print $7}' | cut -d/ -f 1", queryEnginePort)
+		var data []byte
+		data, err = execCmd(exec.Command("sh", "-c", command))
+		if err == nil && len(data) > 0 {
+			_, err = execCmd(exec.Command("kill", "-9", strings.TrimSpace(string(data))))
+		}
+	}
+	if err != nil {
+		var waitStatus syscall.WaitStatus
+		if exitError, ok := err.(*exec.ExitError); ok {
+			waitStatus = exitError.Sys().(syscall.WaitStatus)
+			log.Printf("Error killing prisma query (exit code: %d) %s\n", waitStatus.ExitStatus(), err)
+		}
 	}
 }
 
-func execCmd(cmd *exec.Cmd) {
-	var waitStatus syscall.WaitStatus
+func execCmd(cmd *exec.Cmd) ([]byte, error) {
+	var stdout bytes.Buffer
+	cmd.Stdout = &stdout
+	// Connecting Stderr can help debugging when something goes wrong
+	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		if err != nil {
-			os.Stderr.WriteString(fmt.Sprintf("Error: %s\n", err.Error()))
-		}
-		if exitError, ok := err.(*exec.ExitError); ok {
-			waitStatus = exitError.Sys().(syscall.WaitStatus)
-			log.Println("Error during port killing (exit code: )", []byte(fmt.Sprintf("%d", waitStatus.ExitStatus())))
-		}
-	} else {
-		waitStatus = cmd.ProcessState.Sys().(syscall.WaitStatus)
-
-		log.Println("Successfully killed existing prisma query process", []byte(fmt.Sprintf("%d", waitStatus.ExitStatus())))
+		return nil, err
 	}
+	return stdout.Bytes(), nil
 }
