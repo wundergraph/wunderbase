@@ -47,8 +47,7 @@ func killExistingPrismaQueryEngineProcess(queryEnginePort string) {
 		command := fmt.Sprintf("(Get-NetTCPConnection -LocalPort %s).OwningProcess -Force", queryEnginePort)
 		_, err = execCmd(exec.Command("Stop-Process", "-Id", command))
 	} else {
-		// XXX: This a bit fragile. Consider using system calls or parsing /proc/net/tcp
-		command := fmt.Sprintf("netstat -plnt | grep :%s | awk '{print $7}' | cut -d/ -f 1", queryEnginePort)
+		command := fmt.Sprintf("lsof -i tcp:%s | grep LISTEN | awk '{print $2}' | xargs kill -9", queryEnginePort)
 		var data []byte
 		data, err = execCmd(exec.Command("sh", "-c", command))
 		if err == nil && len(data) > 0 {
