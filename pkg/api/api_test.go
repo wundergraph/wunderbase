@@ -17,7 +17,7 @@ func TestApi(t *testing.T) {
 
 	_, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	handler := NewHandler(false, false, fakeDB.URL, fakeDB.URL+"/sdl", 0, 10000, 2000, cancel)
+	handler := NewHandler(false, false, fakeDB.URL, fakeDB.URL+"/sdl", "/health", 0, 10000, 2000, cancel)
 
 	fakeAPI := httptest.NewServer(handler)
 
@@ -31,4 +31,5 @@ func TestApi(t *testing.T) {
 	})
 
 	e.GET(fakeAPI.URL).Expect().Status(http.StatusOK).Body().Contains("GraphQL").Contains(fakeAPI.URL)
+	e.GET(fakeAPI.URL + "/health").Expect().Status(http.StatusOK).Body().Equal("OK")
 }
