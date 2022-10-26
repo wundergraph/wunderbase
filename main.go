@@ -31,6 +31,7 @@ type config struct {
 	GraphiQLApiURL      string `env:"GRAPHIQL_API_URL" envDefault:"http://localhost:4466"`
 	ReadLimitSeconds    int    `env:"READ_LIMIT_SECONDS" envDefault:"10000"`
 	WriteLimitSeconds   int    `env:"WRITE_LIMIT_SECONDS" envDefault:"2000"`
+	HealthEndpoint      string `env:"HEALTH_ENDPOINT" envDefault:"/health"`
 }
 
 func main() {
@@ -53,6 +54,7 @@ func main() {
 		config.Production,
 		fmt.Sprintf("http://localhost:%s/", config.QueryEnginePort),
 		fmt.Sprintf("http://localhost:%s/sdl", config.QueryEnginePort),
+		config.HealthEndpoint,
 		config.SleepAfterSeconds,
 		config.ReadLimitSeconds,
 		config.WriteLimitSeconds,

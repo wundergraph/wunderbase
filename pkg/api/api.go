@@ -24,6 +24,7 @@ type Handler struct {
 	enablePlayground  bool
 	queryEngineURL    string
 	queryEngineSdlURL string
+	healthEndpoint    string
 	sleepAfterSeconds int
 	init              sync.Once
 	sleepCh           chan struct{}
@@ -33,12 +34,13 @@ type Handler struct {
 	cancel            func()
 }
 
-func NewHandler(enableSleepMode bool, production bool, queryEngineURL string, queryEngineSdlURL string, sleepAfterSeconds, readLimitSeconds, writeLimitSeconds int, cancel func()) *Handler {
+func NewHandler(enableSleepMode bool, production bool, queryEngineURL string, queryEngineSdlURL, healthEndpoint string, sleepAfterSeconds, readLimitSeconds, writeLimitSeconds int, cancel func()) *Handler {
 	return &Handler{
 		enableSleepMode:   enableSleepMode,
 		enablePlayground:  !production,
 		queryEngineURL:    queryEngineURL,
 		queryEngineSdlURL: queryEngineSdlURL,
+		healthEndpoint:    healthEndpoint,
 		sleepCh:           make(chan struct{}),
 		sleepAfterSeconds: sleepAfterSeconds,
 		client: &http.Client{
@@ -68,6 +70,20 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	})
+
+	if r.URL.Path == h.healthEndpoint {
+		// explicitly do this before the sleep mode check
+		// otherwise the sleep mode will never be triggered
+		resp, err := http.Get(h.queryEngineURL)
+		if err != nil || resp.StatusCode != http.StatusOK {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte("query engine not reachable"))
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("OK"))
+		return
+	}
 
 	if h.enableSleepMode {
 		defer func() {
